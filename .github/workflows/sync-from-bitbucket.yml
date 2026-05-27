@@ -1,0 +1,19 @@
+name: Sync from Bitbucket
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    env:
+      GIT_SSL_NO_VERIFY: "true"
+    steps:
+      - name: Mirror Bitbucket to GitHub
+        run: |
+          git clone --mirror https://andyl:${{ secrets.BITBUCKET_TOKEN }}@bitbucket.ngage.netapp.com/scm/~andyl/netapp-docs-mcp.git repo.git
+          cd repo.git
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/andyl-netapp/netapp-docs-mcp.git
+          git push --mirror --force
