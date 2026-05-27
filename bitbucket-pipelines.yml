@@ -1,0 +1,9 @@
+pipelines:
+  default:
+    - step:
+        name: Mirror to GitHub
+        image: alpine/git
+        script:
+          - git remote add github https://${GITHUB_USERNAME}:${GITHUB_TOKEN}@github.com/andyl-netapp/netapp-docs-mcp.git
+          - git push github HEAD:main --force
+          - git push github --tags --force
