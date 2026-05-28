@@ -1,9 +1,11 @@
 name: Sync from Bitbucket
-
 on:
   schedule:
     - cron: '*/15 * * * *'
   workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   sync:
@@ -12,8 +14,11 @@ jobs:
       GIT_SSL_NO_VERIFY: "true"
     steps:
       - name: Mirror Bitbucket to GitHub
+        env:
+          BITBUCKET_TOKEN: ${{ secrets.BITBUCKET_TOKEN }}
         run: |
-          git clone --mirror https://andyl:${{ secrets.BITBUCKET_TOKEN }}@bitbucket.ngage.netapp.com/scm/~andyl/netapp-docs-mcp.git repo.git
+          ENCODED_TOKEN=$(python3 -c "import urllib.parse, os; print(urllib.parse.quote(os.environ['BITBUCKET_TOKEN'], safe=''))")
+          git clone --mirror "https://andyl:${ENCODED_TOKEN}@bitbucket.ngage.netapp.com/scm/~andyl/netapp-docs-mcp.git" repo.git
           cd repo.git
-          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/andyl-netapp/netapp-docs-mcp.git
+          git remote set-url origin "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/andyl-netapp/netapp-docs-mcp.git"
           git push --mirror --force
