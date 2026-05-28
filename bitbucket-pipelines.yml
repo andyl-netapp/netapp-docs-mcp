@@ -4,14 +4,10 @@ pipelines:
   default:
     - step:
         name: Mirror to GitHub
-        clone:
-          enabled: false
         script:
+          - git fetch --all
           - git config --global http.sslVerify false
           - git config --global credential.helper store
-          - printf 'https://andyl:%s@bitbucket.ngage.netapp.com\n' "${BITBUCKET_APP_PASSWORD}" >> ~/.git-credentials
           - printf 'https://x-access-token:%s@github.com\n' "${GITHUB_PAT}" >> ~/.git-credentials
-          - git clone --mirror "https://bitbucket.ngage.netapp.com/scm/~andyl/${BITBUCKET_REPO_SLUG}.git" repo.git
-          - cd repo.git
-          - git remote set-url origin "https://github.com/andyl-netapp/${BITBUCKET_REPO_SLUG}.git"
-          - git push --mirror --force
+          - git remote add github "https://github.com/andyl-netapp/${BITBUCKET_REPO_SLUG}.git" 2>/dev/null || git remote set-url github "https://github.com/andyl-netapp/${BITBUCKET_REPO_SLUG}.git"
+          - git push github --mirror --force
